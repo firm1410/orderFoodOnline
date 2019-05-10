@@ -216,20 +216,6 @@ app.get("/ord/del", (req, res) => {
     }
   });
 });
-const scanner = require('node-wifi-scanner');
-
-app.get("/wifi", (req, res) => {
-  scanner.scan((err, networks) => {
-    if (err) {
-      console.error(err);
-      return;
-    }
-    const tab = res.json({
-      data: networks
-    });
-    return tab;
-  });
-});
 
 // Set The Storage Engine
 const storage = multer.diskStorage({

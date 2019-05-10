@@ -12,7 +12,6 @@ class Header extends Component {
     super(props);
     this.state = {
       showCart: false,
-      cart: this.props.cartItems,
       mobileSearch: false,
       buttonText: "สั่งซื้อ",
       isChecked: true
@@ -98,7 +97,9 @@ class Header extends Component {
   }
   render() {
     let cartItems;
-    cartItems = this.state.cart.map(product => {
+    let item= this.state.isChecked ? this.props.cartItems : this.props.ordItem;
+    console.log(item);
+    cartItems = item.map(product => {
       return (
         <li className="cart-item" key={product.name}>
           <img className="product-image" src={product.image} />
@@ -239,7 +240,7 @@ class Header extends Component {
               <div className="action-block">
                 <button
                   type="button"
-                  className={this.state.cart.length > 0 ? " " : "disabled"}
+                  className={item.length > 0 ? " " : "disabled"}
                   onClick={this.addToOrder.bind(this)}
                 >
                   {this.state.buttonText}

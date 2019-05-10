@@ -49,11 +49,11 @@ class Store extends Component {
         if (
           JSON.stringify(this.state.cartRaw) != JSON.stringify(response.data)
         ) {
-          this.setState({ cart: [] });
-          response.data.forEach(dat => {
-            this.handleAddToCart(dat, false);
-          });
-          this.setState({ cartRaw: response.data });
+          this.setState({ cart: [] }),
+            response.data.forEach(dat => {
+              this.handleAddToCart(dat, false);
+            }),
+            this.setState({ cartRaw: response.data });
         }
       })
       .catch(err => console.error(err));
@@ -67,6 +67,45 @@ class Store extends Component {
         }
       })
       .catch(err => console.error(err));
+  }
+
+  geoFindMe() {
+    var output = document.getElementById("out");
+
+    if (!navigator.geolocation) {
+      output.innerHTML = "<p>Geolocation is not supported by your browser</p>";
+      return;
+    }
+
+    function success(position) {
+      var latitude = position.coords.latitude;
+      var longitude = position.coords.longitude;
+
+      output.innerHTML =
+        "<p>Latitude is " +
+        latitude +
+        "° <br>Longitude is " +
+        longitude +
+        "°</p>";
+
+      var img = new Image();
+      img.src =
+        "https://maps.googleapis.com/maps/api/staticmap?center=" +
+        latitude +
+        "," +
+        longitude +
+        "&zoom=13&size=300x300&sensor=false";
+
+      output.appendChild(img);
+    }
+
+    function error() {
+      output.innerHTML = "Unable to retrieve your location";
+    }
+
+    output.innerHTML = "<p>Locating…</p>";
+
+    navigator.geolocation.getCurrentPosition(success, error);
   }
 
   componentWillMount() {
@@ -94,7 +133,6 @@ class Store extends Component {
     let productID = selectedProducts.id;
     let productQty = selectedProducts.quantity;
     if (isdb) {
-      let index = cartItem.findIndex(x => x.id == productID);
       fetch(
         "http://localhost:3010/cart/add?no=" +
           this.props.number +
@@ -148,14 +186,16 @@ class Store extends Component {
             productQty
         ).catch(err => console.error(err));
         cartItem.push(selectedProducts);
-      });
-      this.setState({
-        ord: cartItem,
-        cart: []
-      });
-      fetch("http://localhost:3010/cart/ord?no=" + this.props.number).catch(
-        err => console.error(err)
-      );
+      }),
+        this.setState({
+          ord: cartItem,
+          cart: []
+        }),
+        fetch("http://localhost:3010/cart/ord?no=" + this.props.number).catch(
+          err => console.error(err)
+        );
+      this.sumTotalItems(this.state.cart);
+      this.sumTotalAmount(this.state.cart);
     } else if (action == "เก็บเงิน") {
     }
   }
@@ -170,10 +210,7 @@ class Store extends Component {
     this.sumTotalItems(this.state.cart);
     this.sumTotalAmount(this.state.cart);
     fetch(
-      "http://localhost:3010/cart/del?no=" +
-        this.props.number +
-        '&food="' +
-        id
+      "http://localhost:3010/cart/del?no=" + this.props.number + '&food="' + id
     ).catch(err => console.error(err));
     e.preventDefault();
   }
@@ -228,6 +265,7 @@ class Store extends Component {
     this.setState({ term: "" });
   }
   render() {
+    console.log(this.state.cart);
     return (
       <div className="Store">
         <Header
